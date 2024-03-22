@@ -1,0 +1,28 @@
+User
+pipeline {
+    agent any
+
+    stages {
+        stage('Cloning The Repo') {
+            steps {
+                git branch: 'master', credentialsId: 'gitHub', url: 'https://github.com/AkiyoSayan/Ayaka_Robot'
+            }
+        }
+        stage('Building The Image') {
+            steps {
+                sh """
+                    docker stop ayaka_robot || true 
+                    docker remove ayaka_robot || true
+                    docker build -t ayaka_robot .
+                """
+            }
+        }
+        stage('Running The Deployment') {
+            steps {
+                sh """
+                    docker run -d --env-file=config.env --name=ayaka_robot ayaka_robot
+                """
+            }
+        }
+    }
+}
